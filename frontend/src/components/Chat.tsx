@@ -19,12 +19,12 @@ interface ChatProps {
 }
 
 const Chat = ({ chat }: ChatProps) => {
-    const { token, socket } = useAuth();
+    const { token, socket, user } = useAuth();
     const [messages, setMessages] = useState<IMessage[]>([]);
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const roomName = chat.isGroup ? chat.name : [(socket as CustomSocket)?.data.user.username, chat.name].sort().join('_');
+    const roomName = chat.isGroup ? chat.name : [user?.username, chat.name].sort().join('_');
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -51,13 +51,13 @@ const Chat = ({ chat }: ChatProps) => {
     }, [chat, token]);
 
     useEffect(() => {
-        if (!socket) return;
+        if (!socket || !user) return; // Ensure user is available
 
         socket.emit('join_room', roomName);
 
         const handleReceiveMessage = (msg: IMessage) => {
             // Only add the message if it belongs to the currently active chat
-            const messageIsInCurrentDm = !chat.isGroup && !msg.isGroup && ((msg.sender === chat.name && msg.receiver === (socket as CustomSocket).data.user.username) || (msg.sender === (socket as CustomSocket).data.user.username && msg.receiver === chat.name));
+            const messageIsInCurrentDm = !chat.isGroup && !msg.isGroup && ((msg.sender === chat.name && msg.receiver === user.username) || (msg.sender === user.username && msg.receiver === chat.name));
             const messageIsInCurrentGroup = chat.isGroup && msg.isGroup && msg.groupName === chat.name;
 
             if (messageIsInCurrentDm || messageIsInCurrentGroup) {
@@ -70,14 +70,14 @@ const Chat = ({ chat }: ChatProps) => {
         return () => {
             socket.off('receive_message', handleReceiveMessage);
         };
-    }, [socket, chat, roomName]);
+    }, [socket, chat, roomName, user]); // Add user to dependency array
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     const sendMessage = () => {
-        if (!socket || !input.trim()) return;
+        if (!socket || !input.trim() || !user) return; // Ensure user is available
 
         const messagePayload = {
             content: input,
@@ -97,7 +97,7 @@ const Chat = ({ chat }: ChatProps) => {
             </div>
             <div className="messages-list">
                 {messages.map((msg) => (
-                    <div key={msg._id} className={`message ${msg.sender === (socket as CustomSocket)?.data.user.username ? 'sent' : 'received'}`}>
+                    <div key={msg._id} className={`message ${msg.sender === user?.username ? 'sent' : 'received'}`}>
                         <div className="message-sender">{msg.sender}</div>
                         <div className="message-content">{msg.content}</div>
                         <div className="message-timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</div>

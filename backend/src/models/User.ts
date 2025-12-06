@@ -1,5 +1,7 @@
 import { Schema, model, Document } from 'mongoose';
 
+console.log('User model file loaded');
+
 export interface IUser extends Document {
     username: string;
     passwordHash: string;
