@@ -31,9 +31,9 @@ router.post('/groups', authMiddleware, async (req: AuthRequest, res: Response) =
         }
 
         const newGroup = new Group({
-            name,
+            groupName: name,
             users: allMembers,
-            createdBy: req.user!.userId,
+            adminUsername: req.user!.username,
         });
 
         await newGroup.save();
@@ -51,7 +51,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     try {
         // Get groups the user is a member of
-        const groups = await Group.find({ members: currentUserId }).select('name _id');
+        const groups = await Group.find({ users: currentUserId }).select('groupName _id');
 
         // Get DMs by finding all messages sent to or by the user
         const dmUsers = await Message.aggregate([

@@ -75,8 +75,8 @@ const ChatList = ({ dms, groups, allUsers, onSelectChat, onCreateGroup }: ChatLi
 
             <h2>Groups</h2>
             {groups.map(group => (
-                <div key={group._id} className="chat-list-item" onClick={() => onSelectChat({ id: group._id, name: group.name, isGroup: true })}>
-                    {group.name}
+                <div key={group._id} className="chat-list-item" onClick={() => onSelectChat({ id: group._id, name: group.groupName, isGroup: true })}>
+                    {group.groupName}
                 </div>
             ))}
             <button onClick={() => setShowModal(true)}>Create Group</button>

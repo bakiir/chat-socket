@@ -22,9 +22,9 @@ router.post('/groups', auth_middleware_1.authMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'One or more members not found' });
         }
         const newGroup = new Group_1.Group({
-            name,
+            groupName: name,
             users: allMembers,
-            createdBy: req.user.userId,
+            adminUsername: req.user.username,
         });
         await newGroup.save();
         res.status(201).json(newGroup);
@@ -40,7 +40,7 @@ router.get('/', auth_middleware_1.authMiddleware, async (req, res) => {
     const currentUsername = req.user.username;
     try {
         // Get groups the user is a member of
-        const groups = await Group_1.Group.find({ members: currentUserId }).select('name _id');
+        const groups = await Group_1.Group.find({ users: currentUserId }).select('groupName _id');
         // Get DMs by finding all messages sent to or by the user
         const dmUsers = await Message_1.Message.aggregate([
             { $match: { $or: [{ sender: currentUsername }, { receiver: currentUsername }], isGroup: false } },

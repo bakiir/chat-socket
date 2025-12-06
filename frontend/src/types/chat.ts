@@ -13,7 +13,7 @@ export interface User {
 
 export interface Group {
     _id: string;
-    name: string;
+    groupName: string;
 }
 
 // Custom Socket type to include the 'data' property
