@@ -9,6 +9,8 @@ const User_1 = require("../models/User"); // Import User model
 const JWT_SECRET = process.env.JWT_SECRET;
 const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization;
+    console.log('Received authHeader:', authHeader); // Added log
+    console.log('Using JWT_SECRET (first 5 chars):', JWT_SECRET.substring(0, 5)); // Added log, showing only first 5 chars for security
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.log('Authentication token required or malformed');
         return res.status(401).json({ message: 'Authentication token required' });
@@ -18,9 +20,9 @@ const authMiddleware = async (req, res, next) => {
         const payload = jsonwebtoken_1.default.verify(token, JWT_SECRET);
         console.log('JWT Payload:', payload);
         console.log('User model in authMiddleware:', User_1.User); // Added log
-        const user = await User_1.User.findById(payload.id); // Line 25
+        const user = await User_1.User.findById(payload.userId); // Line 25
         if (!user) {
-            console.log('User not found for ID:', payload.id);
+            console.log('User not found for ID:', payload.userId);
             return res.status(401).json({ message: 'User not found' });
         }
         req.user = {

@@ -8,7 +8,7 @@ import { API_BASE_URL } from '../utils/config';
 
 
 const HomePage = () => {
-    const { logout, token } = useAuth();
+    const { logout, token, user } = useAuth(); // Destructure user as well
     const [dms, setDms] = useState<User[]>([]);
     const [groups, setGroups] = useState<Group[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -44,10 +44,10 @@ const HomePage = () => {
             }
         };
 
-        if (token) {
+        if (token && user) { // Ensure both token and user are available
             fetchInitialData();
         }
-    }, [token]);
+    }, [token, user]); // Add user to dependency array
 
     const handleSelectChat = (chat: ChatSelection) => {
         setSelectedChat(chat);
